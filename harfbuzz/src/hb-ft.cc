@@ -135,7 +135,7 @@ _hb_ft_font_destroy (void *data)
  *
  * Sets the FT_Load_Glyph load flags for the specified #hb_font_t.
  *
- * For more information, see 
+ * For more information, see
  * https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#ft_load_xxx
  *
  * Since: 1.0.5
@@ -160,7 +160,7 @@ hb_ft_font_set_load_flags (hb_font_t *font, int load_flags)
  *
  * Fetches the FT_Load_Glyph load flags of the specified #hb_font_t.
  *
- * For more information, see 
+ * For more information, see
  * https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#ft_load_xxx
  *
  * Return value: FT_Load_Glyph flags found
@@ -668,10 +668,10 @@ _hb_ft_reference_table (hb_face_t *face HB_UNUSED, hb_tag_t tag, void *user_data
  * This variant of the function does not provide any life-cycle management.
  *
  * Most client programs should use hb_ft_face_create_referenced()
- * (or, perhaps, hb_ft_face_create_cached()) instead. 
+ * (or, perhaps, hb_ft_face_create_cached()) instead.
  *
  * If you know you have valid reasons not to use hb_ft_face_create_referenced(),
- * then it is the client program's responsibility to destroy @ft_face 
+ * then it is the client program's responsibility to destroy @ft_face
  * after the #hb_face_t face object has been destroyed.
  *
  * Return value: (transfer full): the new #hb_face_t face object
@@ -756,6 +756,9 @@ hb_ft_face_finalize (FT_Face ft_face)
 hb_face_t *
 hb_ft_face_create_cached (FT_Face ft_face)
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
+
   if (unlikely (!ft_face->generic.data || ft_face->generic.finalizer != (FT_Generic_Finalizer) hb_ft_face_finalize))
   {
     if (ft_face->generic.finalizer)
@@ -764,6 +767,7 @@ hb_ft_face_create_cached (FT_Face ft_face)
     ft_face->generic.data = hb_ft_face_create (ft_face, nullptr);
     ft_face->generic.finalizer = (FT_Generic_Finalizer) hb_ft_face_finalize;
   }
+#pragma clang diagnostic pop
 
   return hb_face_reference ((hb_face_t *) ft_face->generic.data);
 }
@@ -782,13 +786,13 @@ hb_ft_face_create_cached (FT_Face ft_face)
  * This variant of the function does not provide any life-cycle management.
  *
  * Most client programs should use hb_ft_font_create_referenced()
- * instead. 
+ * instead.
  *
  * If you know you have valid reasons not to use hb_ft_font_create_referenced(),
- * then it is the client program's responsibility to destroy @ft_face 
+ * then it is the client program's responsibility to destroy @ft_face
  * after the #hb_font_t font object has been destroyed.
  *
- * HarfBuzz will use the @destroy callback on the #hb_font_t font object 
+ * HarfBuzz will use the @destroy callback on the #hb_font_t font object
  * if it is supplied when you use this function. However, even if @destroy
  * is provided, it is the client program's responsibility to destroy @ft_face,
  * and it is the client program's responsibility to ensure that @ft_face is
@@ -1031,8 +1035,11 @@ hb_ft_font_set_funcs (hb_font_t *font)
   }
 #endif
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
   ft_face->generic.data = blob;
   ft_face->generic.finalizer = (FT_Generic_Finalizer) _release_blob;
+#pragma clang diagnostic pop
 
   _hb_ft_font_set_funcs (font, ft_face, true);
   hb_ft_font_set_load_flags (font, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING);
